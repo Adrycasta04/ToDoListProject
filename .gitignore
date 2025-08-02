@@ -1,0 +1,26 @@
+# JetBrains IDEs
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/shelf
+
+# CLion specific project files
+.idea/editor.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+*.iml
+
+# CMake builds
+cmake-build-*/
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Other stuff
+.DS_Store
