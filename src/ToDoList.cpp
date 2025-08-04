@@ -17,7 +17,8 @@ const std::vector<Task>& TodoList::getTasks() const {
     return tasks;
 }
 
-bool TodoList::markTaskAsCompleted(int taskId) {
+// NOLINTNEXTLINE(readability-make-member-function-const)
+bool TodoList::markTaskAsCompleted(const int taskId) { // falso positivo (warning)
     for (auto& task : tasks) {
         if (task.getId() == taskId) {
             task.markAsCompleted();
@@ -58,28 +59,33 @@ bool TodoList::saveToFile(const std::string& filename) const {
 bool TodoList::loadFromFile(const std::string& filename) {
     std::ifstream inFile(filename);
     if (!inFile.is_open()) {
-        // Non è un errore se il file non esiste la prima volta
         return false;
     }
 
     tasks.clear();
-    int id, maxId = 0;
-    bool completed;
-    std::string description, line;
+    int maxId = 0;
+    std::string line;
 
     while (std::getline(inFile, line)) {
         size_t pos1 = line.find(',');
         size_t pos2 = line.find(',', pos1 + 1);
 
-        id = std::stoi(line.substr(0, pos1));
-        completed = std::stoi(line.substr(pos1 + 1, pos2 - pos1 - 1));
-        description = line.substr(pos2 + 1);
+
+        if (pos1 == std::string::npos || pos2 == std::string::npos) {
+            continue; // Salta questa riga del file se non è valida
+        }
+
+        int id = std::stoi(line.substr(0, pos1));
+        bool completed = (std::stoi(line.substr(pos1 + 1, pos2 - pos1 - 1)) != 0);
+        std::string description = line.substr(pos2 + 1);
 
         tasks.emplace_back(id, description, completed);
+
         if (id > maxId) {
             maxId = id;
         }
     }
+
     nextId = maxId + 1;
     return true;
 }
