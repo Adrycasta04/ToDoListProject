@@ -1,4 +1,7 @@
+// File: src/main.cpp
+
 #include <iostream>
+#include <limits> // <-- Header necessario per std::numeric_limits
 #include "TodoList.h"
 
 void printMenu() {
@@ -24,6 +27,17 @@ void displayTasks(const TodoList& list) {
     }
 }
 
+// Funzione per ottenere un input numerico in modo sicuro
+int getNumericInput() {
+    int value;
+    while (!(std::cin >> value)) {
+        std::cout << "Input non valido. Per favore, inserisci un numero: ";
+        std::cin.clear(); // Resetta lo stato di errore di cin
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Pulisce il buffer di input
+    }
+    return value;
+}
+
 int main() {
     TodoList list;
     const std::string filename = "data/todolist.txt";
@@ -32,8 +46,10 @@ int main() {
     int choice;
     do {
         printMenu();
-        std::cin >> choice;
-        std::cin.ignore(); // Pulisce il buffer di input
+        choice = getNumericInput();
+        // Puliamo il buffer solo se l'input successivo potrebbe essere una stringa con getline
+        // In questo caso, lo facciamo dopo aver letto la scelta per preparare il case 2
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch (choice) {
             case 1:
@@ -49,8 +65,7 @@ int main() {
             }
             case 3: {
                 std::cout << "Inserisci l'ID dell'attivita' da completare: ";
-                int id;
-                std::cin >> id;
+                int id = getNumericInput();
                 if (list.markTaskAsCompleted(id)) {
                     std::cout << "Attivita' segnata come completata.\n";
                 } else {
@@ -60,8 +75,7 @@ int main() {
             }
             case 4: {
                 std::cout << "Inserisci l'ID dell'attivita' da rimuovere: ";
-                int id;
-                std::cin >> id;
+                int id = getNumericInput();
                 if (list.removeTask(id)) {
                     std::cout << "Attivita' rimossa.\n";
                 } else {
@@ -73,7 +87,7 @@ int main() {
                 if (list.saveToFile(filename)) {
                     std::cout << "Salvataggio completato. Arrivederci!\n";
                 } else {
-                    std::cout << "Errore durante il salvataggio.\n";
+                    std::cout << "Errore durante il salvaggio.\n";
                 }
                 break;
             default:
