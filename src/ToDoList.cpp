@@ -49,7 +49,8 @@ bool TodoList::saveToFile(const std::string& filename) const {
     }
 
     for (const auto& task : tasks) {
-        outFile << "[" << (task.isCompleted() ? "✓" : " ") << "] "
+        // Usiamo la 'x' per la massima compatibilità
+        outFile << "[" << (task.isCompleted() ? "x" : " ") << "] "
                 << task.getId() << ": "
                 << task.getDescription() << "\n";
     }
@@ -67,22 +68,35 @@ bool TodoList::loadFromFile(const std::string& filename) {
     std::string line;
 
     while (std::getline(inFile, line)) {
-        size_t pos1 = line.find(',');
-        size_t pos2 = line.find(',', pos1 + 1);
+        if (line.empty()) continue;
 
+        try {
+            // Troviamo le posizioni dei delimitatori chiave
+            size_t closingBracketPos = line.find(']');
+            size_t colonPos = line.find(':');
 
-        if (pos1 == std::string::npos || pos2 == std::string::npos) {
-            continue; // Salta questa riga del file se non è valida
-        }
+            // Se i delimitatori non ci sono, la riga non è valida
+            if (closingBracketPos == std::string::npos || colonPos == std::string::npos || closingBracketPos > colonPos) {
+                continue;
+            }
 
-        int id = std::stoi(line.substr(0, pos1));
-        bool completed = (std::stoi(line.substr(pos1 + 1, pos2 - pos1 - 1)) != 0);
-        std::string description = line.substr(pos2 + 1);
+            // Estraiamo lo stato (completato/non completato)
+            bool completed = (line.substr(1, closingBracketPos - 1).find('x') != std::string::npos);
 
-        tasks.emplace_back(id, description, completed);
+            // Estraiamo l'ID (tra ']' e ':')
+            std::string idStr = line.substr(closingBracketPos + 1, colonPos - (closingBracketPos + 1));
+            int id = std::stoi(idStr);
 
-        if (id > maxId) {
-            maxId = id;
+            // Estraiamo la descrizione (dopo ': ')
+            std::string description = line.substr(colonPos + 2);
+
+            tasks.emplace_back(id, description, completed);
+
+            if (id > maxId) {
+                maxId = id;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Attenzione: riga malformata ignorata: " << line << std::endl;
         }
     }
 
