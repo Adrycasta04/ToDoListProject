@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits> // <-- Header necessario per std::numeric_limits
 #include "TodoList.h"
+#include <cstdlib>
 
 void printMenu() {
     std::cout << "\n--- Todo List Menu ---\n";
@@ -21,7 +22,7 @@ void displayTasks(const TodoList& list) {
         return;
     }
     for (const auto& task : list.getTasks()) {
-        std::cout << "[" << (task.isCompleted() ? "x" : " ") << "] "
+        std::cout << "[" << (task.isCompleted() ? "✓" : " ") << "] "
                   << task.getId() << ": "
                   << task.getDescription() << std::endl;
     }
@@ -39,6 +40,7 @@ int getNumericInput() {
 }
 
 int main() {
+    system("chcp 65001 > nul");
     TodoList list;
     const std::string filename = "data/todolist.txt";
     list.loadFromFile(filename);

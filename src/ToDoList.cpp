@@ -49,8 +49,8 @@ bool TodoList::saveToFile(const std::string& filename) const {
     }
 
     for (const auto& task : tasks) {
-        outFile << task.getId() << ","
-                << task.isCompleted() << ","
+        outFile << "[" << (task.isCompleted() ? "✓" : " ") << "] "
+                << task.getId() << ": "
                 << task.getDescription() << "\n";
     }
     return true;
